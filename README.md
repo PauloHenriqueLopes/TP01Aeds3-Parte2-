@@ -53,5 +53,5 @@ Este trabalho foi um grande aprendizado sobre o gerenciamento de dados e a utili
 
 1. Clone este repositório:
    ```bash
-   git clone https://github.com/PauloHenriqueLopes/TP01Aeds3.git
+   git clone https://github.com/PauloHenriqueLopes/TP01Aeds3-Parte2-.git
    cd TP01Aeds3
