@@ -9,10 +9,12 @@ import entidades.Episodio;
 import entidades.Serie;
 import modelo.ArquivoEpisodio;
 import modelo.ArquivoSerie;
+import modelo.ArquivoAtor;
 
 public class MenuEpisodio {
     ArquivoEpisodio arqEpisodio;
     ArquivoSerie arqSerie;
+    ArquivoAtor arqAtor;
     private static Scanner scanner = new Scanner(System.in);
 
     public MenuEpisodio() throws Exception {
@@ -180,7 +182,7 @@ public class MenuEpisodio {
                 arqEpisodio.create(episodio);
                 System.out.println("Episódio incluido com sucesso!");
             } catch (Exception e) {
-                System.out.println("Erro de sistema. Não foi possível incluir a série");
+                System.out.println("Erro de sistema. Não foi possível incluir o episódio");
             }
         }
     }
@@ -453,7 +455,7 @@ public class MenuEpisodio {
                 System.out.println("Episódio não encontrado.");
             }
         } catch (Exception e) {
-            System.out.println("Erro do sistema. Não foi possível excluir a série");
+            System.out.println("Erro do sistema. Não foi possível excluir o episódio");
             e.printStackTrace();
         }
     }
@@ -495,7 +497,7 @@ public class MenuEpisodio {
             System.out.printf("\nEpisódios da série \"%s\":\n", serieEscolhida.getName());
     
             // Buscar episódios dessa série
-            Episodio[] episodios = arqEpisodio.readAll(); // você pode usar um método readBySerieId se tiver
+            Episodio[] episodios = arqEpisodio.readAll();
             boolean encontrou = false;
             for (Episodio e : episodios) {
                 if (e.getSerieId() == serieEscolhida.getId()) {

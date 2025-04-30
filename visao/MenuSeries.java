@@ -5,14 +5,17 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Scanner;
 
+import entidades.Atores;
 import entidades.Episodio;
 import entidades.Serie;
 import modelo.ArquivoEpisodio;
 import modelo.ArquivoSerie;
+import modelo.ArquivoAtor;
 
 public class MenuSeries {
      ArquivoSerie arqSerie;
      ArquivoEpisodio arqEpisodio;
+     ArquivoAtor arqAtor;
      private static Scanner scanner = new Scanner(System.in);
      private static final String[] STREAMINGS = {
                "Netflix",
@@ -41,15 +44,14 @@ public class MenuSeries {
                System.out.println("4) Excluir");
                System.out.println("5) Listar Séries");
                System.out.println("6) Episódios por Temporada");
+               System.out.println("7) Mostrar atores participantes da série");               
                System.out.println("0) Retornar");
-
                System.out.print("\nOpção: ");
                try {
                     opition = Integer.valueOf(scanner.nextLine());
                } catch (Exception e) {
                     opition = -1;
                }
-
                switch (opition) {
                     case 1:
                          addSerie();
@@ -69,6 +71,8 @@ public class MenuSeries {
                     case 6:
                          listarEpisodioPorTemporada();
                          break;
+                    case 7:
+                         listarAtores();
                     case 0:
                          break;
                     default:
@@ -516,6 +520,70 @@ public class MenuSeries {
               System.err.println("Erro ao listar episódios por temporada.");
               e.printStackTrace();
           }
-      }
+
+     }
+
+     public void listarAtores() {
+          System.out.println("Listar atores de uma série");
+          System.out.print("Nome da série: ");
+          String nome = scanner.nextLine();
       
+          try {
+              Serie[] seriesEncontradas = arqSerie.readNome(nome);
+      
+              if (seriesEncontradas == null || seriesEncontradas.length == 0) {
+                  System.out.println("Nenhuma série encontrada com esse nome.");
+                  return;
+              }
+      
+              System.out.println("\nSéries encontradas:");
+              for (int i = 0; i < seriesEncontradas.length; i++) {
+                  System.out.printf("[%d] %s (ID: %d)\n", (i + 1), seriesEncontradas[i].getName(), seriesEncontradas[i].getId());
+              }
+      
+              System.out.print("Escolha a série pelo número: ");
+              int escolha = Integer.parseInt(scanner.nextLine().trim());
+      
+              if (escolha < 1 || escolha > seriesEncontradas.length) {
+                  System.out.println("Escolha inválida.");
+                  return;
+              }
+      
+              int idSerieEscolhida = seriesEncontradas[escolha - 1].getId();
+              Atores[] todosAtores = arqAtor.readAll();
+      
+              if (todosAtores == null || todosAtores.length == 0) {
+                  System.out.println("Nenhum ator cadastrado.");
+                  return;
+              }
+      
+              System.out.println("\nAtores associados à série '" + seriesEncontradas[escolha - 1].getName() + "':");
+              boolean encontrou = false;
+      
+              for (Atores ator : todosAtores) {
+                  if (ator != null && ator.getIdSerie() != null && !ator.getIdSerie().isEmpty()) {
+                      String[] idsSeries = ator.getIdSerie().split(",");
+                      for (String idStr : idsSeries) {
+                          try {
+                              if (Integer.parseInt(idStr.trim()) == idSerieEscolhida) {
+                                  System.out.println("- " + ator.getName());
+                                  encontrou = true;
+                                  break;
+                              }
+                          } catch (NumberFormatException e) {
+                              // ignora erro de parsing
+                          }
+                      }
+                  }
+              }
+      
+              if (!encontrou) {
+                  System.out.println("Nenhum ator está vinculado a essa série.");
+              }
+      
+          } catch (Exception e) {
+              System.out.println("Erro ao listar atores da série.");
+              e.printStackTrace();
+          }
+      }            
 }
