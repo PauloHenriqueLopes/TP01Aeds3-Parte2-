@@ -1,83 +1,48 @@
-# PUCFlix - Sistema de Gerenciamento de Séries e Episódios
+# PUCFlix - Sistema de Gerenciamento de Atores e Séries
 
 ## O que o trabalho faz?
 
-O trabalho implementa um sistema completo para o gerenciamento de séries e seus episódios, simulando um serviço de streaming. O sistema permite:
+O trabalho implementa um sistema completo para o gerenciamento de **atores** e suas **séries**, simulando um serviço de streaming. O sistema permite:
 
-- Cadastrar, buscar, alterar **séries** e excluir as que não possuem vinculo com nenhum episódio.
-- Cadastrar, buscar, alterar e excluir **episódios**, vinculados a séries.
-- Visualizar **episódios por temporada** de uma série.
-- Visualizar **todas as séries cadastradas**.
-- Visualizar **todos os episódios cadastrados** de uma série.
-- Garantir a integridade referencial entre séries e episódios, utilizando **ID de série como chave estrangeira** nos episódios.
+- Cadastrar, buscar, alterar **atores** e excluir os que não estão vinculados a nenhuma série.
+- Cadastrar, buscar, alterar **séries**, vinculando-os aos atores.
+- Visualizar **atores por série** e **séries por ator**.
+- Garantir a integridade referencial entre atores e séries, utilizando **ID de ator e ID de série** para criar vínculos.
 - Utilizar estruturas eficientes de **armazenamento e indexação** com:
   - CRUD genérico com arquivos.
-  - **Árvore B+** como índice secundário para o relacionamento 1:N entre série e episódio.
+  - **Árvore B+** como índice secundário para o relacionamento N:M entre atores e séries.
   - **Hash Extensível** como índice direto para acesso rápido por ID.
 
-O sistema é baseado no padrão **MVC** e foi escrito em **Java**.
+O sistema foi desenvolvido com o objetivo de simular a gestão de atores e suas respectivas séries em um serviço de streaming, utilizando conceitos de **programação orientada a objetos** e **estruturas de dados avançadas**.
 
 ---
 
-## Participante
+## Participantes
 
 - Paulo Henrique Lopes de Paula
 
 ---
 
-## Estrutura de Classes
-
-### `Serie.java` (entidades)
-- `Construtores, Metodos Geters e Setters`, `toByteArray()`, `fromByteArray()`
-
-### `Episodio.java` (entidades)
-- Contém o `idSerie` como chave estrangeira
-- `Contrutores, Metodos Geters e Setters`, `toByteArray()`, `fromByteArray()`
-
-### `Arquivo<T>` (modelo)
-- Classe genérica de CRUD em arquivo.
-- Métodos: `create()`, `read()`, `update()`, `delete()`
-
-### `ArquivoSerie.java`
-- CRUD específico para `Serie`, utilizando `Arquivo<T>`, `HashExtensível`, e outros índices.
-- Implementa busca por nome (`readNome`) e `readAll`.
-
-### `ArquivoEpisodio.java`
-- CRUD específico para `Episodio`, com uso de Árvore B+ (`indiceSerieEpisodio`) para manter o relacionamento 1:N.
-- Métodos adicionais:
-  - `readPorSerie(int id)`: retorna todos episódios de uma série.
-  - `readPorSerieETemporada(int id, int temporada)`: retorna episódios de uma temporada específica de uma série.
-
-### `ParIdId.java`
-- Par de IDs usado como chave na Árvore B+ para representar a relação `idSerie -> idEpisodio`.
-
-### `Principal.java`
-- Ponto de entrada do programa, com interface de texto.
-- Contém a navegação por menus e chamadas às operações.
-
----
-
 ## Experiência e Desenvolvimento
 
-O trabalho proporcionou uma experiência prática rica com estruturas de dados avançadas como Árvore B+ e Hash Extensível, além de aprofundar o uso de arquivos e programação genérica em Java.
+Este trabalho foi um grande aprendizado sobre o gerenciamento de dados e a utilização de estruturas de dados avançadas, como **Árvore B+** e **Hash Extensível**. 
 
-- **Requisitos implementados**: Sim, todos os requisitos foram implementados.
-- **Maior desafio**: Integrar corretamente a Árvore B+ com o CRUD genérico e garantir que episódios estejam sempre associados a séries válidas.
-- **Resultado**: O projeto está funcionando como esperado. Conseguimos realizar todas as operações de forma eficiente, e o código está modular e bem estruturado.
-- **Aprendizado**: Reforçei conceitos de chave primária e estrangeira, e a importância de consistência nos relacionamentos entre entidades.
+- **Requisitos implementados**: Sim, todos os requisitos foram implementados com sucesso.
+- **Maior desafio**: O maior desafio foi integrar corretamente a Árvore B+ com o CRUD genérico e garantir que o relacionamento entre atores e séries fosse consistente.
+- **Resultado**: O sistema funciona como esperado, permitindo adicionar, buscar, editar e excluir atores e séries, mantendo a consistência nos vínculos.
+- **Aprendizado**: Reforçamos os conceitos de **integridade referencial**, **programação orientada a objetos**, e o uso de **estruturas de dados eficientes** para manipulação de grandes volumes de dados.
 
 ---
 
 ## Checklist
 
-- [x] As operações de inclusão, busca, alteração e exclusão de séries estão implementadas e funcionando corretamente? **Sim**
-- [x] As operações de inclusão, busca, alteração e exclusão de episódios, por série, estão implementadas e funcionando corretamente? **Sim**
-- [x] Essas operações usam a classe CRUD genérica para a construção do arquivo e as classes Tabela Hash Extensível e Árvore B+ como índices diretos e indiretos? **Sim**
-- [x] O atributo de ID de série, como chave estrangeira, foi criado na classe de episódios? **Sim**
-- [x] Há uma árvore B+ que registre o relacionamento 1:N entre episódios e séries? **Sim**
-- [x] Há uma visualização das séries que mostre os episódios por temporada? **Sim**
-- [x] A remoção de séries checa se há algum episódio vinculado a ela? **Sim**
-- [x] A inclusão da série em um episódio se limita às séries existentes? **Sim**
+- [x] As operações de inclusão, busca, alteração e exclusão de atores estão implementadas e funcionando corretamente? **Sim**
+- [x] O relacionamento entre séries e atores foi implementado com árvores B+ e funciona corretamente, assegurando a consistência entre as duas entidades? **Sim**
+- [x] É possível consultar quais são os atores de uma série? **Sim**
+- [x] É possível consultar quais são as séries de um ator? **Sim**
+- [x] A remoção de séries remove os seus vínculos de atores? **Sim**
+- [x] A inclusão de um ator em uma série em um episódio se limita aos atores existentes? **Sim**
+- [x] A remoção de um ator checa se há alguma série vinculada a ele? **Sim**
 - [x] O trabalho está funcionando corretamente? **Sim**
 - [x] O trabalho está completo? **Sim**
 - [x] O trabalho é original e não a cópia de um trabalho de outro grupo? **Sim**
