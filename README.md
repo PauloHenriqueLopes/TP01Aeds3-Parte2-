@@ -38,7 +38,7 @@ Este trabalho foi um grande aprendizado sobre o gerenciamento de dados e a utili
 
 - [x] As operações de inclusão, busca, alteração e exclusão de atores estão implementadas e funcionando corretamente? **Sim**
 - [x] O relacionamento entre séries e atores foi implementado com árvores B+ e funciona corretamente, assegurando a consistência entre as duas entidades? **Sim**
-- [ ] É possível consultar quais são os atores de uma série? **Não**
+- [x] É possível consultar quais são os atores de uma série? **Sim**
 - [x] É possível consultar quais são as séries de um ator? **Sim**
 - [x] A remoção de séries remove os seus vínculos de atores? **Sim**
 - [x] A inclusão de um ator em uma série em um episódio se limita aos atores existentes? **Sim**
