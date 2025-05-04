@@ -3,8 +3,11 @@ package visao;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Scanner;
 
+import aeds3.ParIdId;
 import entidades.Atores;
 import entidades.Episodio;
 import entidades.Serie;
@@ -400,6 +403,7 @@ public class MenuSeries {
                     if (resp == 'S' || resp == 's') {
                          boolean excluido = arqSerie.delete(nome);
                          if (excluido) {
+                              removerAtores(serieSelecionada.getId());
                               System.out.println("Série excluída com sucesso.");
                          } else {
                               System.out.println("Erro ao excluir a Série.");
@@ -415,6 +419,42 @@ public class MenuSeries {
                e.printStackTrace();
           }
      }
+
+     public void removerAtores(int idSerieRemovido) {
+          try {
+              Atores[] atores = arqAtor.readIdSerie(idSerieRemovido);
+              if (atores == null || atores.length == 0) return;
+      
+              for (Atores ator : atores) {
+                  String[] idsSeries = ator.getIdSerie().split(",");
+                  StringBuilder novaIdSerie = new StringBuilder();
+      
+                  for (String idStr : idsSeries) {
+                      if (!idStr.trim().equals(String.valueOf(idSerieRemovido))) {
+                          if (novaIdSerie.length() > 0) novaIdSerie.append(",");
+                          novaIdSerie.append(idStr.trim());
+                      }
+                  }
+      
+                  // Atualiza o idSerie do ator
+                  ator.setIdSerie(novaIdSerie.toString());
+      
+                  // Atualiza o ator no arquivo
+                  arqAtor.update(ator);
+      
+                  // Remove a relação do índice entre esse ator e a série removida
+                  arqAtor.removerIndiceSerie(idSerieRemovido, ator.getId());
+              }
+      
+          } catch (Exception e) {
+              System.out.println("Erro ao remover referência da série nos atores.");
+              e.printStackTrace();
+          }
+      }
+      
+
+
+      
 
      public void listarSeries() {
           System.out.println("\nListar todas as Séries:");
@@ -526,64 +566,62 @@ public class MenuSeries {
      public void listarAtores() {
           System.out.println("Listar atores de uma série");
           System.out.print("Nome da série: ");
-          String nome = scanner.nextLine();
-      
+          String nome = scanner.nextLine().trim();
+
           try {
-              Serie[] seriesEncontradas = arqSerie.readNome(nome);
-      
-              if (seriesEncontradas == null || seriesEncontradas.length == 0) {
-                  System.out.println("Nenhuma série encontrada com esse nome.");
-                  return;
-              }
-      
-              System.out.println("\nSéries encontradas:");
-              for (int i = 0; i < seriesEncontradas.length; i++) {
-                  System.out.printf("[%d] %s (ID: %d)\n", (i + 1), seriesEncontradas[i].getName(), seriesEncontradas[i].getId());
-              }
-      
-              System.out.print("Escolha a série pelo número: ");
-              int escolha = Integer.parseInt(scanner.nextLine().trim());
-      
-              if (escolha < 1 || escolha > seriesEncontradas.length) {
-                  System.out.println("Escolha inválida.");
-                  return;
-              }
-      
-              int idSerieEscolhida = seriesEncontradas[escolha - 1].getId();
-              Atores[] todosAtores = arqAtor.readAll();
-      
-              if (todosAtores == null || todosAtores.length == 0) {
-                  System.out.println("Nenhum ator cadastrado.");
-                  return;
-              }
-      
-              System.out.println("\nAtores associados à série '" + seriesEncontradas[escolha - 1].getName() + "':");
-              boolean encontrou = false;
-      
-              for (Atores ator : todosAtores) {
-                  if (ator != null && ator.getIdSerie() != null && !ator.getIdSerie().isEmpty()) {
-                      String[] idsSeries = ator.getIdSerie().split(",");
-                      for (String idStr : idsSeries) {
-                          try {
-                              if (Integer.parseInt(idStr.trim()) == idSerieEscolhida) {
-                                  System.out.println("- " + ator.getName());
-                                  encontrou = true;
-                                  break;
-                              }
-                          } catch (NumberFormatException e) {
-                              // ignora erro de parsing
-                          }
-                      }
-                  }
-              }
-      
-              if (!encontrou) {
-                  System.out.println("Nenhum ator está vinculado a essa série.");
-              }
-      
+               Serie[] seriesEncontradas = arqSerie.readNome(nome);
+
+               if (seriesEncontradas == null || seriesEncontradas.length == 0) {
+                    System.out.println("Nenhuma série encontrada com esse nome.");
+                    return;
+               }
+
+               int i = 0;
+               System.out.println("\nSéries encontradas:");
+               for (Serie s : seriesEncontradas) {
+                    System.out.println("[" + (++i) + "] " + s.getName());
+               }
+
+               int escolha = -1;
+               boolean entradaValida = false;
+               do {
+                    System.out.print("Escolha a série pelo número: ");
+                    try {
+                         escolha = Integer.parseInt(scanner.nextLine().trim());
+                         if (escolha >= 1 && escolha <= seriesEncontradas.length) {
+                              entradaValida = true;
+                         } else {
+                              System.out.println("Número fora do intervalo.");
+                         }
+                    } catch (NumberFormatException e) {
+                         System.out.println("Digite um número válido.");
+                    }
+               } while (!entradaValida);
+
+               int idSerieEscolhida = seriesEncontradas[escolha - 1].getId();
+               Atores[] todosAtores = arqAtor.readIdSerie(idSerieEscolhida);
+
+               if (todosAtores == null || todosAtores.length == 0) {
+                    System.out.println("Nenhum ator associado a essa série.");
+                    return;
+               }
+
+               System.out.println("\nAtores associados à série '" + seriesEncontradas[escolha - 1].getName() + "':");
+               for (Atores ator : todosAtores) {
+                    // Confirma se o ID da série ainda está associado ao ator
+                    if (ator.getIdSerie() != null && Arrays.asList(ator.getIdSerie().split(","))
+                                                       .contains(String.valueOf(idSerieEscolhida))) {
+                         System.out.println("----------------------");
+                         System.out.printf("Nome.....: %s\n", ator.getName());
+                         System.out.printf("Idade....: %d\n", ator.getIdade());
+                         System.out.println("Sexo.....: " + (ator.getSexo() == 'F' ? "Feminino" : "Masculino"));
+                         System.out.println("----------------------");
+                    }
+               }
+
           } catch (Exception e) {
-              System.out.println("Erro ao listar atores da série.");
-              e.printStackTrace();
+               System.out.println("Erro ao listar atores da série.");
+               e.printStackTrace();
           }
-      }            
+     }          
 }

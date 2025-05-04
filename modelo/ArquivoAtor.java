@@ -8,6 +8,7 @@ import entidades.Atores;
 
 public class ArquivoAtor extends Arquivo<Atores> {
 
+    Arquivo<Atores> arqAtores;
     ArvoreBMais<ParNomeId> indiceNome;
     ArvoreBMais<ParIdId> indiceAtorSerie;
 
@@ -25,13 +26,22 @@ public class ArquivoAtor extends Arquivo<Atores> {
     public int create(Atores a) throws Exception {
         int id = super.create(a);
         indiceNome.create(new ParNomeId(a.getName(), id));
-        String[] idsSerie = a.getIdSerie().split(",");
-        for (String idSerieStr : idsSerie) {
-            if (!idSerieStr.trim().isEmpty()) {
-                int idSerie = Integer.parseInt(idSerieStr.trim());
-                indiceAtorSerie.create(new ParIdId(idSerie, id));
+
+        if (a.getIdSerie() != null && !a.getIdSerie().isEmpty()) {
+            String[] idsSerie = a.getIdSerie().split(",");
+            for (String idSerieStr : idsSerie) {
+                idSerieStr = idSerieStr.trim();
+                if (!idSerieStr.isEmpty()) {
+                    try {
+                        int idSerie = Integer.parseInt(idSerieStr);
+                        indiceAtorSerie.create(new ParIdId(idSerie, id));
+                    } catch (NumberFormatException e) {
+                        System.out.println("ID de série inválido: " + idSerieStr);
+                    }
+                }
             }
         }
+
         return id;
     }
 
@@ -66,16 +76,56 @@ public class ArquivoAtor extends Arquivo<Atores> {
         return atores.toArray(new Atores[0]);
     }
 
+    public Atores[] readIdSerie(int idSerie) throws Exception {
+        ArrayList<ParIdId> par = indiceAtorSerie.read(new ParIdId(idSerie, -1));
+    
+        if (par.isEmpty()) {
+            return null;
+        }
+    
+        Atores[] atores = new Atores[par.size()];
+        int i = 0;
+    
+        for (ParIdId parId : par) {
+            Atores ator = read(parId.getId2());
+            if (ator != null) {
+                atores[i++] = ator;
+            }
+        }
+        
+    
+        return atores;
+    }
+
     @Override
     public boolean delete(int id) throws Exception {
         Atores a = read(id);
         if (a != null) {
             if (super.delete(id)) {
-                return indiceNome.delete(new ParNomeId(a.getName(), id));
+                boolean okNome = indiceNome.delete(new ParNomeId(a.getName(), id));
+
+                boolean okSerie = true;
+                if (a.getIdSerie() != null && !a.getIdSerie().isEmpty()) {
+                    String[] idsSerie = a.getIdSerie().split(",");
+                    for (String idSerieStr : idsSerie) {
+                        idSerieStr = idSerieStr.trim();
+                        if (!idSerieStr.isEmpty()) {
+                            try {
+                                int idSerie = Integer.parseInt(idSerieStr);
+                                okSerie &= indiceAtorSerie.delete(new ParIdId(idSerie, id));
+                            } catch (NumberFormatException e) {
+                                System.out.println("ID de série inválido: " + idSerieStr);
+                            }
+                        }
+                    }
+                }
+
+                return okNome && okSerie;
             }
         }
         return false;
     }
+
 
     public boolean delete(String nome) throws Exception {
         ArrayList<ParNomeId> pnis = indiceNome.read(new ParNomeId(nome, -1));
@@ -87,16 +137,40 @@ public class ArquivoAtor extends Arquivo<Atores> {
 
     @Override
     public boolean update(Atores novoAtor) throws Exception {
-        Atores a = read(novoAtor.getId());
-        if (a != null) {
+        Atores antigoAtor = read(novoAtor.getId());
+        if (antigoAtor != null) {
             if (super.update(novoAtor)) {
-                if (!a.getName().equals(novoAtor.getName())) {
-                    indiceNome.delete(new ParNomeId(a.getName(), a.getId()));
+                // Atualiza índice de nome se necessário
+                if (!antigoAtor.getName().equals(novoAtor.getName())) {
+                    indiceNome.delete(new ParNomeId(antigoAtor.getName(), antigoAtor.getId()));
                     indiceNome.create(new ParNomeId(novoAtor.getName(), novoAtor.getId()));
                 }
+
+                // Atualiza índice de séries
+                // Remove os antigos
+                String[] idsAntigos = antigoAtor.getIdSerie().split(",");
+                for (String idStr : idsAntigos) {
+                    if (!idStr.trim().isEmpty()) {
+                        indiceAtorSerie.delete(new ParIdId(Integer.parseInt(idStr.trim()), antigoAtor.getId()));
+                    }
+                }
+
+                // Adiciona os novos
+                String[] idsNovos = novoAtor.getIdSerie().split(",");
+                for (String idStr : idsNovos) {
+                    if (!idStr.trim().isEmpty()) {
+                        indiceAtorSerie.create(new ParIdId(Integer.parseInt(idStr.trim()), novoAtor.getId()));
+                    }
+                }
+
                 return true;
             }
         }
         return false;
     }
+
+public void removerIndiceSerie(int idSerie, int idAtor) throws Exception {
+    indiceAtorSerie.delete(new ParIdId(idSerie, idAtor));
+}
+
 }

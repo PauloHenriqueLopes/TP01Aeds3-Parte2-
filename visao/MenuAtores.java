@@ -499,9 +499,9 @@ public class MenuAtores {
         do {
             System.out.print("Nome do ator: ");
             nome = scanner.nextLine();
-            if(nome.isEmpty()) return;
+            if (nome.isEmpty()) return;
     
-            if(nome.length() >= 1) {
+            if (nome.length() >= 1) {
                 dadosCorretos = true;
             } else {
                 System.out.println("Nome inválido. O nome do ator deve conter pelo menos 4 caracteres.");
@@ -510,7 +510,7 @@ public class MenuAtores {
     
         try {
             Atores[] atores = arqAtor.readNome(nome);
-            
+    
             if (atores.length > 0) {
                 int op = 0;
                 if (atores.length > 1) {
@@ -543,18 +543,26 @@ public class MenuAtores {
                 String[] ids = ator.getIdSerie().split(",");
                 ArrayList<Serie> series = arqSerie.readAll();
     
-                System.out.println("\nSéries associadas ao ator:");
+                ArrayList<String> seriesEncontradas = new ArrayList<>();
                 for (String idStr : ids) {
                     try {
                         int id = Integer.parseInt(idStr.trim());
                         for (Serie s : series) {
                             if (s.getId() == id) {
-                                System.out.println("- " + s.getName());
+                                seriesEncontradas.add(s.getName());
                                 break;
                             }
                         }
                     } catch (NumberFormatException e) {
-                        System.out.println("ID de série inválido: " + idStr);
+                    }
+                }
+    
+                if (seriesEncontradas.isEmpty()) {
+                    System.out.println("Este ator não está vinculado a nenhuma série existente.");
+                } else {
+                    System.out.println("\nSéries associadas ao ator:");
+                    for (String nomeSerie : seriesEncontradas) {
+                        System.out.println("- " + nomeSerie);
                     }
                 }
             } else {
@@ -564,5 +572,6 @@ public class MenuAtores {
             System.out.println("Erro ao listar séries do ator!");
             e.printStackTrace();        
         }
-    }    
+    }
+       
 }
