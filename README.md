@@ -13,6 +13,7 @@ O trabalho implementa um sistema completo para o gerenciamento de **atores** e s
   - **Árvore B+** como índice secundário para o relacionamento N:M entre atores e séries.
   - **Hash Extensível** como índice direto para acesso rápido por ID.
 
+
 O sistema foi desenvolvido com o objetivo de simular a gestão de atores e suas respectivas séries em um serviço de streaming, utilizando conceitos de **programação orientada a objetos** e **estruturas de dados avançadas**.
 
 ---
@@ -31,6 +32,7 @@ Este trabalho foi um grande aprendizado sobre o gerenciamento de dados e a utili
 - **Maior desafio**: O maior desafio foi integrar corretamente a Árvore B+ com o CRUD genérico e garantir que o relacionamento entre atores e séries fosse consistente.
 - **Resultado**: O sistema funciona como esperado, permitindo adicionar, buscar, editar e excluir atores e séries, mantendo a consistência nos vínculos.
 - **Aprendizado**: Reforçamos os conceitos de **integridade referencial**, **programação orientada a objetos**, e o uso de **estruturas de dados eficientes** para manipulação de grandes volumes de dados.
+- **Depuração e Resolução de Erros**: Ao longo do desenvolvimento, trabalhamos ativamente no diagnóstico e correção de exceções como `NullPointerException`, resultando em um sistema mais confiável e fácil de manter.
 
 ---
 
@@ -54,4 +56,4 @@ Este trabalho foi um grande aprendizado sobre o gerenciamento de dados e a utili
 1. Clone este repositório:
    ```bash
    git clone https://github.com/PauloHenriqueLopes/TP01Aeds3-Parte2-.git
-   cd TP01Aeds3
+   cd TP01Aeds3-Parte2-/
